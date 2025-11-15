@@ -1,6 +1,6 @@
-# Deployment Guide
+# Deployment guide
 
-## Server Deployment
+## Server deployment
 
 ### 1. Prerequisites
 
@@ -8,11 +8,11 @@ On your server, ensure you have:
 - Python 3.8+
 - Git (if cloning from a repository)
 
-### 2. Initial Setup
+### 2. Initial setup
 
 ```bash
 # Navigate to deployment directory
-cd /srv/planter
+cd /srv/rankbot
 
 # Create virtual environment
 python3 -m venv venv
@@ -47,21 +47,21 @@ ALLOWED_USERS=@user1:matrix.campaignlab.uk,@user2:matrix.campaignlab.uk
 Create a systemd service file:
 
 ```bash
-sudo nano /etc/systemd/system/planter.service
+sudo nano /etc/systemd/system/rankbot.service
 ```
 
 Content:
 ```ini
 [Unit]
-Description=Planter Matrix Bot
+Description=Matrix Ranking Bot
 After=network.target
 
 [Service]
 Type=simple
 User=your_user
-WorkingDirectory=/srv/planter
-Environment="PATH=/srv/planter/venv/bin"
-ExecStart=/srv/planter/venv/bin/python3 /srv/planter/src/bot.py
+WorkingDirectory=/srv/rankbot
+Environment="PATH=/srv/rankbot/venv/bin"
+ExecStart=/srv/rankbot/venv/bin/python3 /srv/rankbot/src/bot.py
 Restart=always
 RestartSec=10
 
@@ -72,40 +72,40 @@ WantedBy=multi-user.target
 Enable and start:
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable planter
-sudo systemctl start planter
+sudo systemctl enable rankbot
+sudo systemctl start rankbot
 ```
 
 Check status:
 ```bash
-sudo systemctl status planter
+sudo systemctl status rankbot
 ```
 
 View logs:
 ```bash
-sudo journalctl -u planter -f
+sudo journalctl -u rankbot -f
 ```
 
 ### 5. Running with tmux (Alternative)
 
 ```bash
 # Create a tmux session
-tmux new -s planter
+tmux new -s rankbot
 
 # Run the bot
-cd /srv/planter
+cd /srv/rankbot
 source venv/bin/activate
 ./run.sh
 
 # Detach with Ctrl+B, then D
-# Reattach with: tmux attach -t planter
+# Reattach with: tmux attach -t rankbot
 ```
 
 ### 6. Updating
 
 ```bash
 # Stop the bot
-sudo systemctl stop planter
+sudo systemctl stop rankbot
 
 # Pull latest changes
 git pull
@@ -115,7 +115,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Restart
-sudo systemctl start planter
+sudo systemctl start rankbot
 ```
 
 ### 7. Backup Data
@@ -124,10 +124,10 @@ Your voting data is stored in `src/data/`. To backup:
 
 ```bash
 # Backup
-tar -czf planter-backup-$(date +%Y%m%d).tar.gz src/data/
+tar -czf rankbot-backup-$(date +%Y%m%d).tar.gz src/data/
 
 # Restore
-tar -xzf planter-backup-YYYYMMDD.tar.gz
+tar -xzf rankbot-backup-YYYYMMDD.tar.gz
 ```
 
 ### 8. Security Notes
@@ -142,10 +142,10 @@ tar -xzf planter-backup-YYYYMMDD.tar.gz
 **Bot not responding:**
 ```bash
 # Check if it's running
-sudo systemctl status planter
+sudo systemctl status rankbot
 
 # Check logs
-sudo journalctl -u planter -n 50
+sudo journalctl -u rankbot -n 50
 ```
 
 **Import errors:**
@@ -158,7 +158,7 @@ pip install -r requirements.txt
 **Permission issues:**
 ```bash
 # Ensure correct ownership
-sudo chown -R your_user:your_user /srv/planter
+sudo chown -R your_user:your_user /srv/rankbot
 ```
 
 **Data corruption:**
