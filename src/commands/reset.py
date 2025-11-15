@@ -18,9 +18,9 @@ class ResetCommand:
         Check if message is a reset all command.
         
         Expected formats:
-        - @operator reset
-        - @operator reset all
-        - @operator clear all
+        - @bot reset
+        - @bot reset all
+        - @bot clear all
         
         Args:
             message: The message text
@@ -37,9 +37,9 @@ class ResetCommand:
         Check if message is a rerank command.
         
         Expected formats:
-        - @operator rerank
-        - @operator reset rankings
-        - @operator reset votes
+        - @bot rerank
+        - @bot reset rankings
+        - @bot reset votes
         
         Args:
             message: The message text

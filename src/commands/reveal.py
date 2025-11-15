@@ -18,10 +18,10 @@ class RevealCommand:
         Check if message is a reveal command.
         
         Expected formats:
-        - @planter reveal
-        - @planter: reveal
-        - @planter ranking
-        - @planter rankings
+        - @bot reveal
+        - @bot reveal
+        - @bot ranking
+        - @bot rankings
         
         Args:
             message: The message text
