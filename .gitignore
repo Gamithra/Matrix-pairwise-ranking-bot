@@ -26,11 +26,13 @@ wheels/
 # Environment variables
 .env
 
-# Data files
+# Data files (bot creates these at runtime)
 data/*.json
 !data/.gitkeep
+src/data/
+!src/data/.gitkeep
 
-# Matrix credentials
+# Matrix credentials and sync tokens
 data/credentials.json
 data/store/
 
