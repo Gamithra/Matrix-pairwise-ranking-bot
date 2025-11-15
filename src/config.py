@@ -1,4 +1,4 @@
-"""Configuration management for the Planter bot."""
+"""Configuration management for the Matrix ranking bot."""
 
 import os
 import json
@@ -82,7 +82,7 @@ class Config:
     ACCESS_TOKEN = os.getenv("MATRIX_ACCESS_TOKEN")  # Alternative to password
     
     # Bot settings
-    DISPLAY_NAME = os.getenv("BOT_DISPLAY_NAME", "Planter Bot")
+    DISPLAY_NAME = os.getenv("BOT_DISPLAY_NAME", "RankBot")
     
     # Security: Allowed users (comma-separated list of Matrix user IDs)
     # Leave empty to allow everyone
@@ -113,7 +113,7 @@ class Config:
         if cls.USER_ID:
             localpart = cls.USER_ID.split(':')[0].lstrip('@')
             return localpart
-        return "planter"
+        return "rankbot"
     
     @classmethod
     def is_user_allowed(cls, user_id: str) -> bool:

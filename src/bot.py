@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Planter Bot - A Matrix bot for ranking plandidates using pairwise comparisons.
+Matrix Pairwise Ranking Bot - A Matrix bot for collaborative ranking using pairwise comparisons.
 """
 
 import asyncio
@@ -32,7 +32,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class PlanterBot:
+class RankingBot:
     """Main bot class."""
     
     def __init__(self):
@@ -118,7 +118,7 @@ class PlanterBot:
             # Try login with device name
             response = await self.client.login(
                 password=Config.PASSWORD,
-                device_name="PlanterBot"
+                device_name="RankingBot"
             )
             
             if isinstance(response, LoginError):
@@ -197,7 +197,7 @@ class PlanterBot:
 
 async def main():
     """Main entry point."""
-    bot = PlanterBot()
+    bot = RankingBot()
     await bot.run()
 
 

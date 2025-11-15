@@ -12,7 +12,7 @@ from storage import JSONStore, Plandidate
 from ranking import EloRanking, PairSelector
 
 def main():
-    print("🌱 plantoid\n")
+    print("� Matrix Pairwise Ranking Bot - Demo\n")
     
     # Create a temporary store
     store = JSONStore("./example_data")
