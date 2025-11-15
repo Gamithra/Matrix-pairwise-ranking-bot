@@ -30,7 +30,7 @@ pip install -r requirements.txt
 cp .env.example .env
 
 # Edit with your credentials
-nano .env
+vim .env
 ```
 
 Set these values in `.env`:
