@@ -6,6 +6,7 @@ from storage import JSONStore
 from ranking import EloRanking
 from commands import AddCommand, RevealCommand, ResetCommand
 from handlers.dm import DMHandler
+from config import Terminology
 
 
 class MessageHandler:
@@ -129,16 +130,7 @@ class MessageHandler:
     
     def _get_help_message(self) -> str:
         """Get the help message."""
-        return (
-            f"🫡 **plandidate ranking bot** at your service\n\n"
-            f"**cmds:**\n"
-            f"• `@{self.bot_name} add <plandidate>` - add a new plandidate\n"
-            f"• `@{self.bot_name} reveal` - show current rankings\n"
-            f"• `@{self.bot_name} rerank` - reset all rankings (keeps plandidates)\n"
-            f"• `@{self.bot_name} reset` - delete everything\n\n"
-            f"**voting:**\n"
-            f"dm me to participate in pairwise ranking (I'll present you with pairs of plandidates to compare)"
-        )
+        return Terminology.get('messages.help_text', bot_name=self.bot_name)
     
     async def _send_message(self, room_id: str, message: str):
         """Send a message to a room."""

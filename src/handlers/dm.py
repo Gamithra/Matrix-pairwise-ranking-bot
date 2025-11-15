@@ -6,6 +6,7 @@ from nio import AsyncClient, RoomMessageText
 
 from storage import JSONStore, UserVotingSession
 from ranking import EloRanking, PairSelector
+from config import Terminology
 
 
 class DMHandler:
@@ -39,14 +40,16 @@ class DMHandler:
     
     async def _start_voting(self, room_id: str, user_id: str):
         """Start or continue a voting session for a user."""
-        plandidates = self.store.get_all_plandidates()
+        term = Terminology.load()
+        items = self.store.get_all_plandidates()
+        item_plural = term.get('item_name_plural', 'items')
         
-        if len(plandidates) < 2:
+        if len(items) < 2:
             await self._send_message(
                 room_id,
-                "there aren't enough plandidates to compare yet! "
-                "we need at least 2. "
-                "tag me with `add <plandidate>` to add some"
+                f"There aren't enough {item_plural} to compare yet! "
+                f"We need at least 2. "
+                f"Tag me with `add <{term.get('item_name', 'item')}>` to add some"
             )
             return
         
@@ -54,14 +57,13 @@ class DMHandler:
         voted_pairs = self.store.get_user_voted_pairs(user_id)
         
         # Get the next pair
-        next_pair = PairSelector.get_next_pair(plandidates, voted_pairs)
+        next_pair = PairSelector.get_next_pair(items, voted_pairs)
         
         if not next_pair:
             # User has voted on all pairs!
             await self._send_message(
                 room_id,
-                "🎉 You've voted on all possible pairs! Thank you for your contribution.\n\n"
-                "Check the rankings in a room by tagging me with `reveal`"
+                Terminology.get('messages.vote_complete')
             )
             return
         
@@ -70,13 +72,17 @@ class DMHandler:
         self.store.save_session(session)
         
         # Send voting prompt
-        remaining = PairSelector.count_remaining_pairs(len(plandidates), len(voted_pairs))
+        remaining = PairSelector.count_remaining_pairs(len(items), len(voted_pairs))
+        
+        vote_intro = Terminology.get('messages.vote_intro')
+        option1 = Terminology.get('messages.vote_option_format', number="1", item=next_pair[0].name)
+        option2 = Terminology.get('messages.vote_option_format', number="2", item=next_pair[1].name)
         
         await self._send_message(
             room_id,
-            f"Which plandidate do you prefer?\n\n"
-            f"**1.** {next_pair[0].name}\n"
-            f"**2.** {next_pair[1].name}\n\n"
+            f"{vote_intro}\n\n"
+            f"{option1}\n"
+            f"{option2}\n\n"
             f"Reply with **1** or **2**\n\n"
             f"_({remaining} pair{'s' if remaining != 1 else ''} remaining)_"
         )
@@ -98,41 +104,43 @@ class DMHandler:
         if choice not in ["1", "2"]:
             await self._send_message(
                 room_id,
-                "Please reply with **1** or **2** to choose your preference."
+                Terminology.get('messages.vote_invalid')
             )
             return
         
-        # Get the plandidates from the session
-        plandidate_a = self.store.get_plandidate_by_id(session.current_pair[0])
-        plandidate_b = self.store.get_plandidate_by_id(session.current_pair[1])
+        # Get the items from the session
+        item_a = self.store.get_plandidate_by_id(session.current_pair[0])
+        item_b = self.store.get_plandidate_by_id(session.current_pair[1])
         
-        if not plandidate_a or not plandidate_b:
-            await self._send_message(room_id, "❌ Error: Plandidate not found. Starting over...")
+        if not item_a or not item_b:
+            term = Terminology.load()
+            item_cap = term.get('item_name_capitalized', 'Item')
+            await self._send_message(room_id, f"❌ Error: {item_cap} not found. Starting over...")
             self.store.clear_session(user_id)
             await self._start_voting(room_id, user_id)
             return
         
         # Determine winner
-        winner = plandidate_a if choice == "1" else plandidate_b
+        winner = item_a if choice == "1" else item_b
         
         # Record vote
         self.store.record_vote(
             user_id=user_id,
-            plandidate_a_id=plandidate_a.id,
-            plandidate_b_id=plandidate_b.id,
+            plandidate_a_id=item_a.id,
+            plandidate_b_id=item_b.id,
             winner_id=winner.id
         )
         
         # Update Elo ratings
         a_won = (choice == "1")
         new_elo_a, new_elo_b = self.elo.update_ratings(
-            plandidate_a.elo,
-            plandidate_b.elo,
+            item_a.elo,
+            item_b.elo,
             a_won
         )
         
-        self.store.update_plandidate_elo(plandidate_a.id, new_elo_a)
-        self.store.update_plandidate_elo(plandidate_b.id, new_elo_b)
+        self.store.update_plandidate_elo(item_a.id, new_elo_a)
+        self.store.update_plandidate_elo(item_b.id, new_elo_b)
         
         # Clear session
         self.store.clear_session(user_id)

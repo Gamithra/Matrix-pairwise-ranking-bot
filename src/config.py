@@ -1,11 +1,75 @@
 """Configuration management for the Planter bot."""
 
 import os
+import json
 from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
+
+
+class Terminology:
+    """Load and manage custom terminology for the bot."""
+    
+    _terminology = None
+    
+    @classmethod
+    def load(cls):
+        """Load terminology from JSON file."""
+        if cls._terminology is not None:
+            return cls._terminology
+        
+        # Try to load terminology.json from project root
+        terminology_path = Path("terminology.json")
+        if not terminology_path.exists():
+            # Fall back to example/default
+            terminology_path = Path("terminology.example.json")
+        
+        if terminology_path.exists():
+            with open(terminology_path, 'r') as f:
+                cls._terminology = json.load(f)
+        else:
+            # Absolute fallback if no files exist
+            cls._terminology = {
+                "item_name": "item",
+                "item_name_plural": "items",
+                "item_name_capitalized": "Item",
+                "messages": {
+                    "add_success": "Added '{item}' to the ranking list.",
+                    "add_duplicate": "'{item}' is already in the list.",
+                    "reveal_header": "📊 **Current rankings** 📊",
+                    "reveal_empty": "No items to rank yet. Add some with `@{bot_name} add <item>`",
+                    "reset_all_confirm": "Reset complete. All items, votes, and rankings have been cleared.",
+                    "rerank_confirm": "Rankings reset. All votes cleared, but items remain in the system.",
+                    "vote_intro": "Let's rank these items. Which one do you prefer?",
+                    "vote_option_format": "**{number}.** {item}",
+                    "vote_progress": "Progress: {done}/{total} comparisons completed",
+                    "vote_complete": "All comparisons complete! Rankings are now up to date.",
+                    "vote_invalid": "Please enter 1 or 2 to make your selection.",
+                    "help_text": "Available commands:\n\n**In rooms:**\n- `@{bot_name} add <item>` - Add a new item to rank\n- `@{bot_name} reveal` - Display current rankings\n- `@{bot_name} reset all` - Clear all data (items, votes, rankings)\n- `@{bot_name} rerank` - Reset votes and rankings (keeps items)\n\n**In direct messages:**\n- Message me to start pairwise ranking comparisons\n\nRankings are calculated using the Elo rating algorithm."
+                }
+            }
+        
+        return cls._terminology
+    
+    @classmethod
+    def get(cls, key: str, **kwargs) -> str:
+        """Get a terminology value with optional formatting."""
+        term = cls.load()
+        
+        # Navigate nested keys (e.g., "messages.add_success")
+        value = term
+        for k in key.split('.'):
+            value = value.get(k, key)
+        
+        # Format if kwargs provided
+        if isinstance(value, str) and kwargs:
+            # Add common substitutions
+            kwargs.setdefault('bot_name', term.get('bot_name', 'RankBot'))
+            return value.format(**kwargs)
+        
+        return value
 
 
 class Config:

@@ -1,0 +1,19 @@
+{
+  "item_name": "item",
+  "item_name_plural": "items",
+  "item_name_capitalized": "Item",
+  "messages": {
+    "add_success": "Added '{item}' to the ranking list.",
+    "add_duplicate": "'{item}' is already in the list.",
+    "reveal_header": "📊 **Current rankings** 📊",
+    "reveal_empty": "No items to rank yet. Add some with `@{bot_name} add <item>`",
+    "reset_all_confirm": "Reset complete. All items, votes, and rankings have been cleared.",
+    "rerank_confirm": "Rankings reset. All votes cleared, but items remain in the system.",
+    "vote_intro": "Let's rank these items. Which one do you prefer?",
+    "vote_option_format": "**{number}.** {item}",
+    "vote_progress": "Progress: {done}/{total} comparisons completed",
+    "vote_complete": "All comparisons complete! Rankings are now up to date.",
+    "vote_invalid": "Please enter 1 or 2 to make your selection.",
+    "help_text": "Available commands:\n\n**In rooms:**\n- `@{bot_name} add <item>` - Add a new item to rank\n- `@{bot_name} reveal` - Display current rankings\n- `@{bot_name} reset all` - Clear all data (items, votes, rankings)\n- `@{bot_name} rerank` - Reset votes and rankings (keeps items)\n\n**In direct messages:**\n- Message me to start pairwise ranking comparisons\n\nRankings are calculated using the Elo rating algorithm."
+  }
+}

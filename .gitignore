@@ -26,6 +26,9 @@ wheels/
 # Environment variables
 .env
 
+# Custom terminology (private repo only)
+terminology.json
+
 # Data files (bot creates these at runtime)
 data/*.json
 !data/.gitkeep

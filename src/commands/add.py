@@ -1,9 +1,10 @@
-"""Command: Add a new plandidate."""
+"""Command: Add a new item to rank."""
 
 import re
 from typing import Optional
 
 from storage import JSONStore
+from config import Terminology
 
 
 class AddCommand:
@@ -17,46 +18,51 @@ class AddCommand:
         Parse an add command from a message.
         
         Expected formats:
-        - @planter add Some plandidate name
-        - @planter: add Some plandidate name
+        - @botname add Some item name
+        - @botname: add Some item name
         
         Args:
             message: The message text
             bot_name: The bot's name/localpart
             
         Returns:
-            The plandidate name to add, or None if not a valid add command
+            The item name to add, or None if not a valid add command
         """
-        # Pattern: @botname add <plandidate>
+        # Pattern: @botname add <item>
         # Allow optional colon after mention
         pattern = rf'@{re.escape(bot_name)}:?\s+add\s+(.+)'
         match = re.search(pattern, message, re.IGNORECASE)
         
         if match:
-            plandidate_name = match.group(1).strip()
-            return plandidate_name if plandidate_name else None
+            item_name = match.group(1).strip()
+            return item_name if item_name else None
         
         return None
     
-    def execute(self, plandidate_name: str, user_id: str) -> str:
+    def execute(self, item_name: str, user_id: str) -> str:
         """
-        Add a plandidate.
+        Add an item to rank.
         
         Args:
-            plandidate_name: Name of the plandidate to add
+            item_name: Name of the item to add
             user_id: User ID who is adding it
             
         Returns:
             Response message
         """
-        if not plandidate_name:
-            return "❌ bro please provide a plandidate name"
+        term = Terminology.load()
+        item_singular = term.get('item_name', 'item')
         
-        plandidate = self.store.add_plandidate(plandidate_name, user_id)
+        if not item_name:
+            return f"Please provide a {item_singular} name."
         
-        # Check if it was already added (same object returned)
+        item = self.store.add_plandidate(item_name, user_id)
+        
+        # Check if it was already added
         existing = self.store.get_all_plandidates()
-        if len([p for p in existing if p.name.lower() == plandidate_name.lower()]) > 0:
-            return f"✅ bro added plandidate: **{plandidate.name}**"
+        is_duplicate = len([p for p in existing if p.name.lower() == item_name.lower()]) > 1
         
-        return f"✅ bro added plandidate: **{plandidate.name}**"
+        if is_duplicate:
+            return Terminology.get('messages.add_duplicate', item=item.name)
+        
+        return Terminology.get('messages.add_success', item=item.name)

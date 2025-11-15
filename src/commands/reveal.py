@@ -4,6 +4,7 @@ import re
 from typing import Optional
 
 from storage import JSONStore
+from config import Terminology
 
 
 class RevealCommand:
@@ -39,15 +40,17 @@ class RevealCommand:
         Returns:
             Response message with rankings
         """
-        plandidates = self.store.get_plandidates_sorted_by_elo()
+        term = Terminology.load()
+        items = self.store.get_plandidates_sorted_by_elo()
         
-        if not plandidates:
-            return "😡 no plandidates have been added yet! tag me with `add <plandidate>` to add one."
+        if not items:
+            return Terminology.get('messages.reveal_empty')
         
         # Build ranking message
-        lines = ["**current rankings**", ""]
+        header = Terminology.get('messages.reveal_header')
+        lines = [header, ""]
         
-        for i, p in enumerate(plandidates, 1):
+        for i, item in enumerate(items, 1):
             medal = ""
             if i == 1:
                 medal = "🥇 "
@@ -56,11 +59,11 @@ class RevealCommand:
             elif i == 3:
                 medal = "🥉 "
             
-            # Format: "1. 🥇 Plandidate Name (Elo: 1623, Votes: 12)"
-            elo_str = f"{p.elo:.0f}"
-            votes_str = f"{p.votes_count} vote{'s' if p.votes_count != 1 else ''}"
+            # Format: "1. 🥇 Item Name (Elo: 1623, Votes: 12)"
+            elo_str = f"{item.elo:.0f}"
+            votes_str = f"{item.votes_count} vote{'s' if item.votes_count != 1 else ''}"
             
-            lines.append(f"{i}. {medal}**{p.name}** (elo: {elo_str}, {votes_str})")
+            lines.append(f"{i}. {medal}**{item.name}** (elo: {elo_str}, {votes_str})")
         
         # Add footer
         total_votes = self.store.get_all_votes()

@@ -4,6 +4,7 @@ import re
 from typing import Optional
 
 from storage import JSONStore
+from config import Terminology
 
 
 class ResetCommand:
@@ -52,26 +53,28 @@ class ResetCommand:
     
     def execute_reset_all(self) -> str:
         """
-        Reset everything: delete all plandidates and votes.
+        Reset everything: delete all items and votes.
         
         Returns:
             Response message
         """
         self.store.reset_all()
-        return "🗑️ **reset complete** (all plandidates and votes have been cleared.)"
+        return Terminology.get('messages.reset_all_confirm')
     
     def execute_rerank(self) -> str:
         """
-        Reset rankings: clear all votes and reset Elo scores, but keep plandidates.
+        Reset rankings: clear all votes and reset Elo scores, but keep items.
         
         Returns:
             Response message
         """
-        plandidates = self.store.get_all_plandidates()
+        term = Terminology.load()
+        items = self.store.get_all_plandidates()
         
-        if not plandidates:
-            return "⚠️ no plandidates to rerank"
+        if not items:
+            item_plural = term.get('item_name_plural', 'items')
+            return f"⚠️ No {item_plural} to rerank"
         
         self.store.reset_rankings()
         
-        return f"🔄 **rankings reset** (all {len(plandidates)} plandidates have been reset to 1500 elo)"
+        return Terminology.get('messages.rerank_confirm')
