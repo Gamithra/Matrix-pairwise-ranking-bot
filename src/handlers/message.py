@@ -112,9 +112,9 @@ class MessageHandler:
             response = self.reset_command.execute_rerank()
         
         # Try add command
-        elif (plandidate_name := self.add_command.parse_command(message, self.bot_name)):
-            logger.info(f"Parsed add command with plandidate: {plandidate_name}")
-            response = self.add_command.execute(plandidate_name, sender)
+        elif (item_name := self.add_command.parse_command(message, self.bot_name)):
+            logger.info(f"Parsed add command with item: {item_name}")
+            response = self.add_command.execute(item_name, sender)
         
         # Try reveal command
         elif self.reveal_command.parse_command(message, self.bot_name):

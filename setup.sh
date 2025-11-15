@@ -1,7 +1,7 @@
 #!/bin/bash
-# Quick setup script for Planter bot
+# Quick setup script for Matrix Pairwise Ranking Bot
 
-echo "🌱 Setting up Planter Bot..."
+echo "� Setting up Matrix Ranking Bot..."
 
 # Check for Python
 if ! command -v python3 &> /dev/null; then

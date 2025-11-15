@@ -6,12 +6,12 @@ from datetime import datetime
 
 
 @dataclass
-class Plandidate:
-    """A plan candidate with Elo rating."""
+class RankedItem:
+    """An item to be ranked with Elo rating."""
     id: str
     name: str
     elo: float = 1500.0  # Default Elo rating
-    votes_count: int = 0  # Number of times this plandidate has been in a comparison
+    votes_count: int = 0  # Number of times this item has been in a comparison
     added_by: Optional[str] = None  # User ID who added it
     added_at: Optional[str] = None  # Timestamp
     
@@ -27,9 +27,9 @@ class Plandidate:
 class Vote:
     """A pairwise vote record."""
     user_id: str
-    plandidate_a_id: str
-    plandidate_b_id: str
-    winner_id: str  # ID of the chosen plandidate
+    item_a_id: str
+    item_b_id: str
+    winner_id: str  # ID of the chosen item
     timestamp: str
     
     def to_dict(self):
@@ -44,7 +44,7 @@ class Vote:
 class UserVotingSession:
     """Tracks a user's current voting session in DM."""
     user_id: str
-    current_pair: Optional[tuple[str, str]] = None  # (plandidate_a_id, plandidate_b_id)
+    current_pair: Optional[tuple[str, str]] = None  # (item_a_id, item_b_id)
     
     def to_dict(self):
         return {
