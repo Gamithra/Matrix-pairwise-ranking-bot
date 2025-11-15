@@ -126,6 +126,10 @@ see [DEPLOY.md](DEPLOY.md) for running this in production (systemd service, dedi
 - deduplicates events to prevent double-processing
 - tracks user progress so you don't see the same pair twice
 
+## todo
+- the bot stores one 'vote' at a time; it could be nice to have multiple concurrent polls on the same service
+- to DM the bot, an unencrypted room needs to be created specifically with the bot (could be solved by the bot messaging first and creating an unencrypted room programmatically)
+
 ## license
 
 do whatever you want
