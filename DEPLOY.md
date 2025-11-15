@@ -5,8 +5,7 @@
 ### 1. Prerequisites
 
 On your server, ensure you have:
-- Python 3.8+
-- Git (if cloning from a repository)
+- Python 3.8+, at least, possibly 3.11+
 
 ### 2. Initial setup
 
@@ -36,10 +35,10 @@ nano .env
 
 Set these values in `.env`:
 ```
-MATRIX_HOMESERVER=https://matrix.campaignlab.uk
-MATRIX_USER_ID=@operator:matrix.campaignlab.uk
+MATRIX_HOMESERVER=https://matrix.your.homeserver
+MATRIX_USER_ID=@bot_name:matrix.your.homeserver
 MATRIX_ACCESS_TOKEN=your_access_token_here
-ALLOWED_USERS=@user1:matrix.campaignlab.uk,@user2:matrix.campaignlab.uk
+ALLOWED_USERS=@user1:matrix.server.com,@user2:matrix.server.com (leave empty to allow anyone)
 ```
 
 ### 4. Running with systemd (Recommended)
@@ -47,13 +46,15 @@ ALLOWED_USERS=@user1:matrix.campaignlab.uk,@user2:matrix.campaignlab.uk
 Create a systemd service file:
 
 ```bash
-sudo nano /etc/systemd/system/rankbot.service
+sudo vim /etc/systemd/system/rankbot.service
 ```
+
+(ideally, create a new service user for this bot)
 
 Content:
 ```ini
 [Unit]
-Description=Matrix Ranking Bot
+Description=Matrix ranking bot
 After=network.target
 
 [Service]
@@ -86,7 +87,7 @@ View logs:
 sudo journalctl -u rankbot -f
 ```
 
-### 5. Running with tmux (Alternative)
+### 5. Running with tmux (alternative)
 
 ```bash
 # Create a tmux session
@@ -118,7 +119,7 @@ pip install -r requirements.txt
 sudo systemctl start rankbot
 ```
 
-### 7. Backup Data
+### 7. Backup data
 
 Your voting data is stored in `src/data/`. To backup:
 
@@ -130,12 +131,12 @@ tar -czf rankbot-backup-$(date +%Y%m%d).tar.gz src/data/
 tar -xzf rankbot-backup-YYYYMMDD.tar.gz
 ```
 
-### 8. Security Notes
+### 8. Notes
 
 - Keep your `.env` file secure (it contains your access token)
-- Use `ALLOWED_USERS` to restrict who can use the bot
-- The `src/data/` directory contains all voting data - don't commit it to git
-- Regularly backup `src/data/` if the votes are important
+- use `ALLOWED_USERS` to restrict who can use the bot
+- the `src/data/` directory contains all voting data - don't commit it to git
+- regularly backup `src/data/` if the votes are important
 
 ### 9. Troubleshooting
 
