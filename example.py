@@ -12,7 +12,7 @@ from storage import JSONStore, Plandidate
 from ranking import EloRanking, PairSelector
 
 def main():
-    print("🌱 Planter Bot - Elo Ranking Example\n")
+    print("🌱 plantoid\n")
     
     # Create a temporary store
     store = JSONStore("./example_data")

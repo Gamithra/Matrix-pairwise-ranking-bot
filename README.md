@@ -1,26 +1,26 @@
-# Planter 🌱
+# plantoid 🌱
 
-A Matrix bot for ranking "plandidates" (plan candidates) using pairwise comparisons and Elo ratings.
+a matrix bot for ranking plandidates using pairwise comparisons and Elo ratings
 
-## Features
+## features
 
-- **Add plandidates**: Tag the bot in any room with `@planter add <your plandidate>`
-- **Reveal rankings**: Tag the bot with `@planter reveal` to see current rankings
-- **Private voting**: DM the bot to participate in pairwise ranking
-- **Elo algorithm**: Uses Elo rating system for fair, relative rankings
-- **Simple storage**: All data stored in JSON files (no database needed!)
+- **add plandidates**: Tag the bot in any room with `@[bot_name] add <plandidate>`
+- **reveal rankings**: Tag the bot with `@[bot_name] reveal` to see current rankings
+- **private voting**: DM the bot to participate in pairwise ranking
+- **Elo algorithm**: uses Elo rating system for fair, relative rankings
+- **simple storage**: all data stored in JSON files
 
-## How It Works
+## how tf it work
 
-1. Anyone can add plandidates by tagging the bot in a room
-2. Users DM the bot to vote on pairs of plandidates
-3. The bot presents pairs the user hasn't voted on yet
-4. User choices update Elo ratings
-5. Rankings can be revealed at any time
+1. anyone can add plandidates by tagging the bot in a room
+2. users DM the bot to vote on pairs of plandidates
+3. the bot presents pairs the user hasn't voted on yet
+4. user choices update Elo ratings
+5. rankings can be revealed at any time
 
-## Setup
+## setup
 
-### Prerequisites
+### prerequisites
 
 - Python 3.8+
 - A Matrix account for the bot
@@ -41,9 +41,9 @@ A Matrix bot for ranking "plandidates" (plan candidates) using pairwise comparis
 
 4. Edit `.env` with your Matrix credentials:
    ```
-   MATRIX_HOMESERVER=https://matrix.your-homeserver.org
-   MATRIX_USER_ID=@planter:your-homeserver.org
-   MATRIX_PASSWORD=your_secure_password
+   MATRIX_HOMESERVER=https://matrix.???homeserver.org
+   MATRIX_USER_ID=@[bot-name]:homeserver.org
+   MATRIX_PASSWORD=[cool_pw]
    ```
 
 ### Running
@@ -57,37 +57,37 @@ The bot will:
 - Sync existing messages
 - Start listening for commands and DMs
 
-## Usage
+## usage
 
-### Adding a Plandidate
+### adding a plandidate
 
 In any room where the bot is present, tag it:
 ```
-@planter add Implement user authentication
+@[bot_name] add <plan>
 ```
 
-### Voting on Pairs
+### voting 
 
-1. Send a DM to the bot
-2. It will present you with two plandidates
-3. Reply with `1` for the first option or `2` for the second
-4. Continue voting until you've ranked all pairs
+1. send a DM to the bot
+2. it will present you with two plandidates
+3. reply with `1` for the first option or `2` for the second
+4. continue voting until you've ranked all pairs
 
-### Revealing Rankings
+### big reveal 
 
 Tag the bot in a room:
 ```
-@planter reveal
+@[bot_name] reveal
 ```
 
-## Data Storage
+## data storage
 
 All data is stored in the `data/` directory as JSON files:
 - `plandidates.json`: List of all plandidates with Elo ratings
 - `votes.json`: Record of all pairwise votes
 - `user_votes.json`: Tracking which pairs each user has voted on
 
-## Development
+## development
 
 The project structure:
 ```
@@ -109,8 +109,3 @@ planter/
 │       └── dm.py           # DM voting handlers
 └── data/                   # JSON data files
 ```
-
-## License
-
-MIT
-# plantoid
