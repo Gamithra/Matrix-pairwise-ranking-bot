@@ -1,5 +1,5 @@
 #!/bin/bash
-# Quick setup script for Matrix pairwise ranking Bot
+# Quick setup script for Matrix pairwise ranking bot
 
 echo "Setting up Matrix ranking bot..."
 
