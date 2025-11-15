@@ -56,10 +56,10 @@ class AddCommand:
         if not item_name:
             return f"Please provide a {item_singular} name."
         
-        item = self.store.add_plandidate(item_name, user_id)
+        item = self.store.add_item(item_name, user_id)
         
         # Check if it was already added
-        existing = self.store.get_all_plandidates()
+        existing = self.store.get_all_items()
         is_duplicate = len([p for p in existing if p.name.lower() == item_name.lower()]) > 1
         
         if is_duplicate:

@@ -1,4 +1,4 @@
-"""JSON-based storage for the Planter bot."""
+"""JSON-based storage for the ranking bot."""
 
 import json
 import os
@@ -8,7 +8,7 @@ from datetime import datetime
 import uuid
 import asyncio
 
-from .models import Plandidate, Vote, UserVotingSession
+from .models import RankedItem, Vote, UserVotingSession
 
 
 class JSONStore:
@@ -18,13 +18,13 @@ class JSONStore:
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(exist_ok=True)
         
-        self.plandidates_file = self.data_dir / "plandidates.json"
+        self.items_file = self.data_dir / "items.json"
         self.votes_file = self.data_dir / "votes.json"
         self.user_votes_file = self.data_dir / "user_votes.json"
         self.sessions_file = self.data_dir / "sessions.json"
         
         # Locks to prevent concurrent file access
-        self._plandidates_lock = asyncio.Lock()
+        self._items_lock = asyncio.Lock()
         self._votes_lock = asyncio.Lock()
         self._user_votes_lock = asyncio.Lock()
         self._sessions_lock = asyncio.Lock()
@@ -34,8 +34,8 @@ class JSONStore:
     
     def _initialize_files(self):
         """Create empty JSON files if they don't exist."""
-        if not self.plandidates_file.exists():
-            self._write_json(self.plandidates_file, [])
+        if not self.items_file.exists():
+            self._write_json(self.items_file, [])
         if not self.votes_file.exists():
             self._write_json(self.votes_file, [])
         if not self.user_votes_file.exists():
@@ -63,70 +63,70 @@ class JSONStore:
                 temp_file.unlink()
             raise e
     
-    # Plandidate operations
+    # Item operations
     
-    def add_plandidate(self, name: str, added_by: str) -> Plandidate:
-        """Add a new plandidate."""
-        plandidates = self._read_json(self.plandidates_file)
+    def add_item(self, name: str, added_by: str) -> RankedItem:
+        """Add a new item."""
+        items = self._read_json(self.items_file)
         
-        # Check if plandidate with same name already exists
-        for p in plandidates:
-            if p['name'].lower() == name.lower():
-                return Plandidate.from_dict(p)
+        # Check if item with same name already exists
+        for item in items:
+            if item['name'].lower() == name.lower():
+                return RankedItem.from_dict(item)
         
-        plandidate = Plandidate(
+        new_item = RankedItem(
             id=str(uuid.uuid4()),
             name=name,
             added_by=added_by,
             added_at=datetime.now().isoformat()
         )
         
-        plandidates.append(plandidate.to_dict())
-        self._write_json(self.plandidates_file, plandidates)
+        items.append(new_item.to_dict())
+        self._write_json(self.items_file, items)
         
-        return plandidate
+        return new_item
     
-    def get_all_plandidates(self) -> List[Plandidate]:
-        """Get all plandidates."""
-        plandidates_data = self._read_json(self.plandidates_file)
-        return [Plandidate.from_dict(p) for p in plandidates_data]
+    def get_all_items(self) -> List[RankedItem]:
+        """Get all items."""
+        items_data = self._read_json(self.items_file)
+        return [RankedItem.from_dict(item) for item in items_data]
     
-    def get_plandidate_by_id(self, plandidate_id: str) -> Optional[Plandidate]:
-        """Get a specific plandidate by ID."""
-        plandidates = self.get_all_plandidates()
-        for p in plandidates:
-            if p.id == plandidate_id:
-                return p
+    def get_item_by_id(self, item_id: str) -> Optional[RankedItem]:
+        """Get a specific item by ID."""
+        items = self.get_all_items()
+        for item in items:
+            if item.id == item_id:
+                return item
         return None
     
-    def update_plandidate_elo(self, plandidate_id: str, new_elo: float):
-        """Update a plandidate's Elo rating."""
-        plandidates = self._read_json(self.plandidates_file)
+    def update_item_elo(self, item_id: str, new_elo: float):
+        """Update an item's Elo rating."""
+        items = self._read_json(self.items_file)
         
-        for p in plandidates:
-            if p['id'] == plandidate_id:
-                p['elo'] = new_elo
-                p['votes_count'] = p.get('votes_count', 0) + 1
+        for item in items:
+            if item['id'] == item_id:
+                item['elo'] = new_elo
+                item['votes_count'] = item.get('votes_count', 0) + 1
                 break
         
-        self._write_json(self.plandidates_file, plandidates)
+        self._write_json(self.items_file, items)
     
-    def get_plandidates_sorted_by_elo(self) -> List[Plandidate]:
-        """Get all plandidates sorted by Elo rating (highest first)."""
-        plandidates = self.get_all_plandidates()
-        return sorted(plandidates, key=lambda p: p.elo, reverse=True)
+    def get_items_sorted_by_elo(self) -> List[RankedItem]:
+        """Get all items sorted by Elo rating (highest first)."""
+        items = self.get_all_items()
+        return sorted(items, key=lambda item: item.elo, reverse=True)
     
     # Vote operations
     
-    def record_vote(self, user_id: str, plandidate_a_id: str, 
-                   plandidate_b_id: str, winner_id: str) -> Vote:
+    def record_vote(self, user_id: str, item_a_id: str, 
+                   item_b_id: str, winner_id: str) -> Vote:
         """Record a pairwise vote."""
         votes = self._read_json(self.votes_file)
         
         vote = Vote(
             user_id=user_id,
-            plandidate_a_id=plandidate_a_id,
-            plandidate_b_id=plandidate_b_id,
+            item_a_id=item_a_id,
+            item_b_id=item_b_id,
             winner_id=winner_id,
             timestamp=datetime.now().isoformat()
         )
@@ -135,7 +135,7 @@ class JSONStore:
         self._write_json(self.votes_file, votes)
         
         # Update user votes tracking
-        self._add_user_vote(user_id, plandidate_a_id, plandidate_b_id)
+        self._add_user_vote(user_id, item_a_id, item_b_id)
         
         return vote
     
@@ -146,7 +146,7 @@ class JSONStore:
     
     # User vote tracking
     
-    def _add_user_vote(self, user_id: str, plandidate_a_id: str, plandidate_b_id: str):
+    def _add_user_vote(self, user_id: str, item_a_id: str, item_b_id: str):
         """Mark that a user has voted on this pair."""
         user_votes = self._read_json(self.user_votes_file)
         
@@ -154,7 +154,7 @@ class JSONStore:
             user_votes[user_id] = []
         
         # Store as sorted pair to ensure consistency
-        pair = tuple(sorted([plandidate_a_id, plandidate_b_id]))
+        pair = tuple(sorted([item_a_id, item_b_id]))
         if pair not in [tuple(p) for p in user_votes[user_id]]:
             user_votes[user_id].append(list(pair))
         
@@ -197,20 +197,20 @@ class JSONStore:
     # Reset operations
     
     def reset_all(self):
-        """Reset everything: delete all plandidates, votes, and user vote history."""
-        self._write_json(self.plandidates_file, [])
+        """Reset everything: delete all items, votes, and user vote history."""
+        self._write_json(self.items_file, [])
         self._write_json(self.votes_file, [])
         self._write_json(self.user_votes_file, {})
         self._write_json(self.sessions_file, {})
     
     def reset_rankings(self):
-        """Reset all Elo rankings and votes, but keep the plandidates."""
-        # Reset all plandidates to default Elo
-        plandidates = self._read_json(self.plandidates_file)
-        for p in plandidates:
-            p['elo'] = 1500.0
-            p['votes_count'] = 0
-        self._write_json(self.plandidates_file, plandidates)
+        """Reset all Elo rankings and votes, but keep the items."""
+        # Reset all items to default Elo
+        items = self._read_json(self.items_file)
+        for item in items:
+            item['elo'] = 1500.0
+            item['votes_count'] = 0
+        self._write_json(self.items_file, items)
         
         # Clear all votes and user vote history
         self._write_json(self.votes_file, [])

@@ -69,7 +69,7 @@ class ResetCommand:
             Response message
         """
         term = Terminology.load()
-        items = self.store.get_all_plandidates()
+        items = self.store.get_all_items()
         
         if not items:
             item_plural = term.get('item_name_plural', 'items')

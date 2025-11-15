@@ -3,17 +3,17 @@
 import random
 from typing import List, Optional, Tuple, Set
 
-from storage.models import Plandidate
+from storage.models import RankedItem
 
 
 class PairSelector:
-    """Selects pairs of plandidates for users to compare."""
+    """Selects pairs of items for users to compare."""
     
     @staticmethod
-    def get_next_pair(plandidates: List[Plandidate], 
-                     voted_pairs: Set[Tuple[str, str]]) -> Optional[Tuple[Plandidate, Plandidate]]:
+    def get_next_pair(items: List[RankedItem], 
+                     voted_pairs: Set[Tuple[str, str]]) -> Optional[Tuple[RankedItem, RankedItem]]:
         """
-        Get the next pair of plandidates for a user to vote on.
+        Get the next pair of items for a user to vote on.
         
         Strategy:
         1. Find all pairs the user hasn't voted on yet
@@ -21,21 +21,21 @@ class PairSelector:
         3. Return None if user has voted on all pairs
         
         Args:
-            plandidates: List of all plandidates
+            items: List of all items
             voted_pairs: Set of (id_a, id_b) tuples the user has already voted on
             
         Returns:
-            Tuple of two Plandidate objects, or None if no pairs remain
+            Tuple of two RankedItem objects, or None if no pairs remain
         """
-        if len(plandidates) < 2:
+        if len(items) < 2:
             return None
         
         # Find all unvoted pairs
         unvoted_pairs = []
         
-        for i in range(len(plandidates)):
-            for j in range(i + 1, len(plandidates)):
-                p_a, p_b = plandidates[i], plandidates[j]
+        for i in range(len(items)):
+            for j in range(i + 1, len(items)):
+                p_a, p_b = items[i], items[j]
                 pair_key = tuple(sorted([p_a.id, p_b.id]))
                 
                 if pair_key not in voted_pairs:
@@ -55,36 +55,36 @@ class PairSelector:
         return (selected[0], selected[1])
     
     @staticmethod
-    def get_random_pair(plandidates: List[Plandidate]) -> Optional[Tuple[Plandidate, Plandidate]]:
+    def get_random_pair(items: List[RankedItem]) -> Optional[Tuple[RankedItem, RankedItem]]:
         """
-        Get a random pair of plandidates.
+        Get a random pair of items.
         
         Args:
-            plandidates: List of all plandidates
+            items: List of all items
             
         Returns:
-            Tuple of two random Plandidate objects, or None if not enough plandidates
+            Tuple of two random RankedItem objects, or None if not enough items
         """
-        if len(plandidates) < 2:
+        if len(items) < 2:
             return None
         
-        pair = random.sample(plandidates, 2)
+        pair = random.sample(items, 2)
         return (pair[0], pair[1])
     
     @staticmethod
-    def count_remaining_pairs(num_plandidates: int, num_voted: int) -> int:
+    def count_remaining_pairs(num_items: int, num_voted: int) -> int:
         """
         Calculate how many pairs remain for a user to vote on.
         
         Args:
-            num_plandidates: Total number of plandidates
+            num_items: Total number of items
             num_voted: Number of pairs the user has already voted on
             
         Returns:
             Number of remaining pairs
         """
-        if num_plandidates < 2:
+        if num_items < 2:
             return 0
         
-        total_pairs = (num_plandidates * (num_plandidates - 1)) // 2
+        total_pairs = (num_items * (num_items - 1)) // 2
         return total_pairs - num_voted

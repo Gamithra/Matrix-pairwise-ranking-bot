@@ -41,7 +41,7 @@ class DMHandler:
     async def _start_voting(self, room_id: str, user_id: str):
         """Start or continue a voting session for a user."""
         term = Terminology.load()
-        items = self.store.get_all_plandidates()
+        items = self.store.get_all_items()
         item_plural = term.get('item_name_plural', 'items')
         
         if len(items) < 2:
@@ -109,8 +109,8 @@ class DMHandler:
             return
         
         # Get the items from the session
-        item_a = self.store.get_plandidate_by_id(session.current_pair[0])
-        item_b = self.store.get_plandidate_by_id(session.current_pair[1])
+        item_a = self.store.get_item_by_id(session.current_pair[0])
+        item_b = self.store.get_item_by_id(session.current_pair[1])
         
         if not item_a or not item_b:
             term = Terminology.load()
@@ -126,8 +126,8 @@ class DMHandler:
         # Record vote
         self.store.record_vote(
             user_id=user_id,
-            plandidate_a_id=item_a.id,
-            plandidate_b_id=item_b.id,
+            item_a_id=item_a.id,
+            item_b_id=item_b.id,
             winner_id=winner.id
         )
         
@@ -139,8 +139,8 @@ class DMHandler:
             a_won
         )
         
-        self.store.update_plandidate_elo(item_a.id, new_elo_a)
-        self.store.update_plandidate_elo(item_b.id, new_elo_b)
+        self.store.update_item_elo(item_a.id, new_elo_a)
+        self.store.update_item_elo(item_b.id, new_elo_b)
         
         # Clear session
         self.store.clear_session(user_id)

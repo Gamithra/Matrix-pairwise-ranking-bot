@@ -1,7 +1,7 @@
 #!/bin/bash
-# Quick setup script for Matrix Pairwise Ranking Bot
+# Quick setup script for Matrix pairwise ranking Bot
 
-echo "� Setting up Matrix Ranking Bot..."
+echo "Setting up Matrix ranking bot..."
 
 # Check for Python
 if ! command -v python3 &> /dev/null; then

@@ -41,7 +41,7 @@ class RevealCommand:
             Response message with rankings
         """
         term = Terminology.load()
-        items = self.store.get_plandidates_sorted_by_elo()
+        items = self.store.get_items_sorted_by_elo()
         
         if not items:
             return Terminology.get('messages.reveal_empty')
