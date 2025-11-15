@@ -1,100 +1,93 @@
-# Matrix pairwise ranking bot
+# matrix pairwise ranking bot
 
-A Matrix bot that enables collaborative ranking of items through pairwise comparisons using the Elo rating algorithm. Users compare items two at a time, and the bot maintains a dynamic ranking based on collective preferences.
+a matrix bot for ranking stuff through pairwise comparisons so people can determine things they collectively want. uses elo ratings (like chess)!
 
-## Features
+## how it works
 
-- **Pairwise comparisons**: Present users with pairs of items to compare, making ranking intuitive and manageable
-- **Elo rating system**: Uses the proven Elo algorithm (K-factor: 32) for fair and adaptive rankings
-- **Direct message voting**: Private voting sessions through DMs with the bot
-- **Public rankings**: Display current standings in Matrix rooms
-- **Customizable terminology**: Configure the bot's language and personality to match your use case
-- **Security**: Optional whitelist of authorized users
-- **Persistent storage**: JSON-based storage with atomic writes to prevent data corruption
-- **Progress tracking**: Shows users how many comparisons remain
+```
+[in a room]
+alice: @rankbot add pizza
+bot: added 'pizza' to the ranking list.
 
-## Use cases
+alice: @rankbot add tacos
+bob: @rankbot add burgers
 
-- **Product prioritization**: Rank features, bugs, or product ideas
-- **Team decision making**: Collaboratively rank proposals or options
-- **Content curation**: Rank articles, resources, or content to surface the best
-- **Event planning**: Rank venues, dates, or activity options
-- **Anything else**: Adapt to your ranking needs with custom terminology
+alice: @rankbot reveal
+bot: 📊 current rankings 📊
+     1. pizza (1500 elo, 0 votes)
+     2. tacos (1500 elo, 0 votes)
+     3. burgers (1500 elo, 0 votes)
 
-## Quick start
+[alice DMs the bot]
+bot: which do you prefer?
+     1. pizza
+     2. tacos
+alice: 1
 
-### Prerequisites
+bot: which do you prefer?
+     1. pizza
+     2. burgers
+alice: 2
 
-- Python 3.11+
-- A Matrix account for the bot
-- Access to a Matrix homeserver
+bot: which do you prefer?
+     1. tacos
+     2. burgers
+alice: 2
 
-### Installation
+bot: all comparisons complete! rankings are now up to date.
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Gamithra/Matrix-pairwise-ranking-bot.git
-   cd Matrix-pairwise-ranking-bot
-   ```
+[back in the room]
+alice: @rankbot reveal
+bot: 📊 current rankings 📊
+     1. burgers (1516 elo, 2 votes)
+     2. pizza (1508 elo, 2 votes)
+     3. tacos (1476 elo, 2 votes)
+```
 
-2. **Create a virtual environment**
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+## setup
 
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+you need python 3.11+ and a matrix account for the bot
 
-4. **Configure the bot**
-   ```bash
-   cp .env.example .env
-   cp terminology.example.json terminology.json
-   ```
+```bash
+git clone https://github.com/Gamithra/Matrix-pairwise-ranking-bot.git
+cd Matrix-pairwise-ranking-bot
 
-   Edit `.env` with your Matrix credentials:
-   - `MATRIX_HOMESERVER`: Your homeserver URL
-   - `MATRIX_USER_ID`: Bot's Matrix user ID
-   - `MATRIX_ACCESS_TOKEN` or `MATRIX_PASSWORD`: Authentication
-   - `ALLOWED_USERS`: (Optional) Comma-separated user IDs
+python3 -m venv venv
+source venv/bin/activate
 
-5. **Customize terminology** (optional)
+pip install -r requirements.txt
 
-   Edit `terminology.json` to customize the bot's language and personality. See [Customization](#customization) below.
+cp .env.example .env
+cp terminology.example.json terminology.json
+```
 
-6. **Run the bot**
-   ```bash
-   ./run.sh
-   ```
+edit `.env` with your matrix credentials:
+- `MATRIX_HOMESERVER` - your homeserver url
+- `MATRIX_USER_ID` - bot's user id  
+- `MATRIX_ACCESS_TOKEN` or `MATRIX_PASSWORD` - auth
+- `ALLOWED_USERS` - (optional) comma-separated list of allowed users
 
-## Usage
+then start it:
+```bash
+./run.sh
+```
 
-### Room commands
+## commands
 
-Mention the bot in any Matrix room to use these commands:
+**in rooms** (mention the bot):
+- `@botname add <item>` - add something to rank
+- `@botname reveal` - show current rankings
+- `@botname rerank` - reset votes but keep items
+- `@botname reset all` - delete everything
+- `@botname` - show help
 
-- **Add an item**: `@botname add <item name>`
-- **Show rankings**: `@botname reveal`
-- **Reset rankings**: `@botname rerank` (keeps items, clears votes)
-- **Reset everything**: `@botname reset all` (deletes all data)
-- **Help**: `@botname` (with no command)
+**in DMs** (private message the bot):
+- just message it (with anything) and it'll walk you through comparing items
+- it remembers which pairs you've already voted on
 
-### Voting via direct messages
+## customization
 
-1. Send a direct message to the bot
-2. The bot will present you with pairs of items
-3. Reply with `1` or `2` to indicate your preference
-4. Continue until you've compared all possible pairs
-
-The bot tracks your progress and only shows you pairs you haven't voted on yet.
-
-## Customization
-
-The bot's terminology and personality can be fully customized via `terminology.json`. This allows you to adapt the bot for different contexts without changing code.
-
-### Example configuration
+want to rank "proposals", or, "plans", instead of generic "items"? just edit `terminology.json`:
 
 ```json
 {
@@ -102,113 +95,37 @@ The bot's terminology and personality can be fully customized via `terminology.j
   "item_name_plural": "proposals",
   "item_name_capitalized": "Proposal",
   "messages": {
-    "add_success": "Added '{item}' to the ranking list.",
-    "add_duplicate": "'{item}' is already in the list.",
-    "reveal_header": "📊 **Current rankings** 📊",
-    "reveal_empty": "No proposals to rank yet. Add some with `@{bot_name} add <proposal>`",
-    "vote_intro": "Which proposal do you prefer?",
-    "vote_option_format": "**{number}.** {item}",
-    "vote_complete": "All comparisons complete! Rankings are now up to date.",
-    "help_text": "Available commands:\n\n**In rooms:**\n- `@{bot_name} add <item>` - Add a new proposal\n- `@{bot_name} reveal` - Display current rankings\n\n**In direct messages:**\n- Message me to start pairwise ranking"
+    "add_success": "added '{item}' to the list!",
+    "reveal_header": "📊 proposal rankings 📊",
+    "vote_intro": "which proposal is better?",
+    ...
   }
 }
 ```
 
-### Customization fields
+you can customize every message the bot sends. check `terminology.example.json` for all available options
 
-- **item_name**: Singular term for items being ranked
-- **item_name_plural**: Plural term
-- **item_name_capitalized**: Capitalized singular (for sentence starts)
-- **messages**: All user-facing messages (supports {placeholders})
+## how elo works
 
-## Architecture
+items start at 1500 rating. when two items are compared:
+1. expected outcome is calculated based on rating difference
+2. actual outcome updates both ratings
+3. beating a higher-rated item gives you more points
 
-```
-src/
-├── bot.py              # Main bot entry point
-├── config.py           # Configuration & terminology loading
-├── commands/           # Command handlers (add, reveal, reset)
-├── handlers/           # Event handlers (messages, DMs)
-├── storage/            # Data persistence layer
-├── ranking/            # Elo algorithm & pairing logic
-└── data/               # Runtime data storage (gitignored)
-```
+so if everyone keeps voting pizza > burgers, pizza's rating goes up and burgers goes down. the math stabilizes over time to reflect true preferences 🧑‍🔬
 
-### Key components
+## deployment
 
-- **Terminology system**: Loads custom language from `terminology.json`
-- **JSON storage**: Atomic writes prevent corruption
-- **Elo ranking**: Implements chess-style rating updates
-- **Pair selector**: Smart pairing ensures all combinations are covered
-- **Event deduplication**: Prevents processing the same event twice
-- **Session management**: Tracks user voting progress
+see [DEPLOY.md](DEPLOY.md) for running this in production (systemd service, dedicated user, etc).
 
-## Development
+## notes
 
-### Running tests
+- built with [matrix-nio](https://github.com/poljar/matrix-nio)
+- json storage (easy)
+- elo k-factor of 32 for responsive but stable ratings
+- deduplicates events to prevent double-processing
+- tracks user progress so you don't see the same pair twice
 
-```bash
-# Run the example Elo demonstration
-python3 src/example.py
-```
+## license
 
-### Project structure
-
-- Commands are parsed via regex in `commands/` directory
-- All user-facing text goes through `Terminology.get()`
-- Storage operations use atomic writes via temp files
-- Matrix events are deduplicated by `event_id`
-
-## Deployment
-
-See [DEPLOY.md](DEPLOY.md) for production deployment instructions including:
-- Systemd service setup
-- Running as dedicated user
-- Security best practices
-- Backup procedures
-
-## How Elo works
-
-The Elo rating system (invented for chess) assigns each item a numerical rating. When two items are compared:
-
-1. The expected outcome is calculated based on rating difference
-2. The actual outcome (which item won) is compared to the expectation
-3. Ratings are adjusted proportionally
-
-**Key properties:**
-- Items start at 1500 rating
-- Beating a higher-rated item gives more points
-- Ratings converge over time to reflect true preferences
-- K-factor of 32 balances responsiveness and stability
-
-## Security
-
-- **User whitelist**: Restrict bot usage to specific Matrix users via `ALLOWED_USERS` in `.env`
-- **Access token auth**: Prefer access tokens over passwords in production
-- **Event deduplication**: Prevents replay attacks and duplicate processing
-- **Input validation**: All user inputs are validated before processing
-
-## Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes with clear commit messages
-4. Submit a pull request
-
-## License
-
-MIT License - see LICENSE file for details
-
-## Acknowledgments
-
-- Built with [matrix-nio](https://github.com/poljar/matrix-nio)
-- Elo algorithm inspired by chess rating systems
-- Designed for collaborative decision-making
-
-## Support
-
-- **Issues**: Report bugs or request features via GitHub Issues
-- **Matrix**: Join `#matrix-dev:matrix.org` for Matrix development questions
-- **Documentation**: See [Matrix Client-Server API](https://spec.matrix.org/latest/client-server-api/)
+do whatever you want
